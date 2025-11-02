@@ -1,142 +1,136 @@
-ChurchMonitor API
+# ChurchMonitor API
 
-API RESTful para monitoramento de níveis de decibéis em igrejas, permitindo que administradores acompanhem múltiplas igrejas e usuários registrem leituras de som.
-Desenvolvido com PHP, Doctrine ORM, PHP-DI, JWT e boas práticas de arquitetura.
+API RESTful para monitoramento de níveis de decibéis em igrejas. Administradores podem acompanhar múltiplas igrejas, e usuários registram leituras de som.
 
-Índice
+## Índice
 
-Visão Geral
+- [Visão Geral](#visão-geral)
+- [Tecnologias](#tecnologias)
+- [Arquitetura](#arquitetura)
+- [Autenticação](#autenticação)
+- [Endpoints](#endpoints)
+- [Exemplos de Requests e Responses](#exemplos-de-requests-e-responses)
+- [Instalação](#instalação)
+- [Testes](#testes)
+- [Convenções de Commit](#convenções-de-commit)
 
-Tecnologias
-
-Arquitetura e Estrutura
-
-Autenticação
-
-Endpoints
-
-Exemplos de Requests e Responses
-
-Instalação
-
-Testes
-
-Conventions de Commit
-
-Visão Geral
+## Visão Geral
 
 O ChurchMonitor API foi criado para:
 
-Permitir que administradores gerenciem igrejas e usuários.
+- Permitir que administradores gerenciem igrejas e usuários
+- Registrar e monitorar leituras de decibéis enviadas pelos usuários
+- Validar automaticamente se o usuário pertence à igreja informada
+- Garantir segurança e integridade dos dados usando UUID, DTOs e Requests validados
 
-Registrar e monitorar leituras de decibéis enviadas pelos usuários.
+A arquitetura segue camadas bem definidas:
 
-Validar automaticamente se o usuário pertence à igreja informada.
+- **Controllers**: Recebem requests e chamam services
+- **Services**: Lógica de negócio centralizada
+- **Repositories**: Persistência de dados com Doctrine ORM
+- **DTOs/Requests**: Validação e transferência de dados
 
-Garantir segurança e integridade dos dados usando UUID, DTOs e Requests validados.
+## Tecnologias
 
-A API segue o padrão RESTful, com camadas bem definidas:
+- PHP 8.1+
+- Doctrine ORM + DBAL
+- PHP-DI (Injeção de dependência)
+- Respect/Validation (Validações de Requests)
+- FastRoute (Roteamento)
+- Monolog (Logs)
+- Firebase JWT (Autenticação)
+- Dotenv (Variáveis de ambiente)
+- PHPUnit + Mockery (Testes)
 
-Controllers: Recebem requests e chamam serviços.
+## Arquitetura
 
-Services: Lógica de negócio centralizada.
+### Estrutura do Projeto
 
-Repositories: Persistência usando Doctrine ORM.
-
-Requests/DTOs: Validação e transferência de dados.
-
-Tecnologias
-
-PHP 8.1+
-
-Doctrine ORM + DBAL (Model e Repositories)
-
-PHP-DI (Injeção de dependência)
-
-Respect/Validation (Validações)
-
-FastRoute (Roteamento)
-
-Monolog (Logs)
-
-Firebase JWT (Autenticação)
-
-Dotenv (Variáveis de ambiente)
-
-PHPUnit + Mockery (Testes)
-
-Arquitetura e Estrutura
+```
 project-root/
 ├─ src/
-│  ├─ Controller/      # Controladores da API
-│  ├─ Service/         # Lógica de negócio
-│  ├─ Repository/      # Acesso a dados (Doctrine)
-│  ├─ Model/           # Entidades/Models
-│  ├─ DTO/             # Data Transfer Objects
-│  ├─ Resource/        # Representação de dados (opcional)
-│  ├─ Middleware/      # JWT/Auth middleware
-│  ├─ Exceptions/      # Tratamento de exceções
-│  ├─ Infrastructure/  # DB connection, Logger
-│  └─ bootstrap.php    # Inicialização da aplicação
+│  ├─ Controller/          # Controladores da API
+│  ├─ Service/             # Lógica de negócio
+│  ├─ Repository/          # Acesso a dados
+│  ├─ Model/               # Entidades/Models
+│  ├─ DTO/                 # Data Transfer Objects
+│  ├─ Resource/            # Formatação de resposta (opcional)
+│  ├─ Middleware/          # JWT/Auth middleware
+│  ├─ Exceptions/          # Tratamento de exceções
+│  └─ Infrastructure/      # DB, Logger, bootstrap
+│     └─ bootstrap.php
 ├─ public/
-│  └─ index.php        # Front controller
-├─ tests/              # Testes unitários e integração
-├─ migrations/         # Arquivos de migrations do banco
-├─ composer.json       # Dependências
-└─ .env                # Configurações do ambiente
+│  └─ index.php            # Front controller
+├─ tests/                  # Unitários e integração
+├─ migrations/             # Arquivos de migrations
+├─ composer.json           # Dependências
+└─ .env                    # Configurações do ambiente
+```
 
-Autenticação
+## Autenticação
 
-JWT (JSON Web Token)
+### JWT (JSON Web Token)
 
-Cabeçalho: Authorization: Bearer {token}
+**Cabeçalho:**
+```
+Authorization: Bearer {token}
+```
 
-Roles: admin e user
+**Roles:**
+- **admin**: CRUD completo de igrejas e usuários
+- **user**: Registrar leituras e consultar dados da própria igreja
 
-Regras:
+## Endpoints
 
-Admin: pode criar/atualizar/deletar igrejas e usuários.
+### Usuários
 
-User: pode enviar leituras de decibéis e consultar dados da sua igreja.
+| Método | Endpoint        | Descrição              |
+|--------|-----------------|------------------------|
+| POST   | /users          | Criar usuário          |
+| GET    | /users/{id}     | Buscar usuário por ID  |
+| PUT    | /users/{id}     | Atualizar usuário      |
+| DELETE | /users/{id}     | Deletar usuário        |
 
-Endpoints Principais
-Usuários
-Método	Endpoint	Descrição
-POST	/users	Criar usuário
-GET	/users/{id}	Buscar usuário por ID
-PUT	/users/{id}	Atualizar usuário
-DELETE	/users/{id}	Deletar usuário
-Igrejas
-Método	Endpoint	Descrição
-POST	/churches	Criar igreja
-GET	/churches	Listar todas as igrejas
-GET	/churches/{id}	Buscar igreja por ID
-PUT	/churches/{id}	Atualizar igreja
-DELETE	/churches/{id}	Deletar igreja
-Leituras de Decibéis
-Método	Endpoint	Descrição
-POST	/decibels	Registrar leitura de decibéis
-GET	/decibels/church/{id}	Listar leituras de uma igreja
-GET	/decibels/user/{id}	Listar leituras de um usuário
-Exemplos de Requests e Responses
-Criar Igreja
+### Igrejas
 
-Request:
+| Método | Endpoint        | Descrição              |
+|--------|-----------------|------------------------|
+| POST   | /churches       | Criar igreja           |
+| GET    | /churches       | Listar todas as igrejas|
+| GET    | /churches/{id}  | Buscar igreja por ID   |
+| PUT    | /churches/{id}  | Atualizar igreja       |
+| DELETE | /churches/{id}  | Deletar igreja         |
 
+### Leituras de Decibéis
+
+| Método | Endpoint               | Descrição                      |
+|--------|------------------------|--------------------------------|
+| POST   | /decibels              | Registrar leitura              |
+| GET    | /decibels/church/{id}  | Listar leituras de uma igreja  |
+| GET    | /decibels/user/{id}    | Listar leituras de um usuário  |
+
+## Exemplos de Requests e Responses
+
+### Criar Igreja
+
+**Request:**
+```http
 POST /churches
 Content-Type: application/json
 Authorization: Bearer {token}
+```
 
+```json
 {
   "name": "Igreja Central",
   "address": "Rua das Flores, 123",
   "latitude": -8.052,
   "longitude": -34.932
 }
+```
 
-
-Response:
-
+**Response:**
+```json
 {
   "id": "b9f7a8d2-5f48-4c9e-b9e4-0d4f3b7f8c20",
   "name": "Igreja Central",
@@ -144,24 +138,27 @@ Response:
   "latitude": -8.052,
   "longitude": -34.932
 }
+```
 
-Registrar Decibéis
+### Registrar Decibéis
 
-Request:
-
+**Request:**
+```http
 POST /decibels
 Content-Type: application/json
 Authorization: Bearer {token}
+```
 
+```json
 {
   "user_id": "f2c8e9d1-1234-4bcd-8f2a-abcdef123456",
   "church_id": "b9f7a8d2-5f48-4c9e-b9e4-0d4f3b7f8c20",
   "decibels": 78.5
 }
+```
 
-
-Response:
-
+**Response:**
+```json
 {
   "id": "e1f7a9b0-9876-4c9e-a3b1-abcdef987654",
   "user_id": "f2c8e9d1-1234-4bcd-8f2a-abcdef123456",
@@ -169,41 +166,36 @@ Response:
   "decibels": 78.5,
   "created_at": "2025-11-02T12:30:45Z"
 }
+```
 
-Instalação
+## Instalação
+
+```bash
 git clone https://github.com/thiagonatividade/church-monitor-api.git
 cd church-monitor-api
 composer install
 cp .env.example .env
-# configurar banco, JWT_SECRET, etc.
+```
+
+Ajustar variáveis: DB, JWT_SECRET, etc.
+
+```bash
 php vendor/bin/doctrine-migrations migrate
 php -S localhost:8000 -t public
+```
 
-Testes
+## Testes
+
+```bash
 composer test
+```
 
+Testes unitários e de integração usando PHPUnit e Mockery.
 
-Testes unitários e integração usando PHPUnit e Mockery
+## Convenções de Commit
 
-Boas Práticas e Conventions
-
-PSR-4: Autoload e namespaces
-
-DTOs e Requests: Garantem validação e tipagem
-
-Services: Lógica de negócio centralizada
-
-Repositories: Persistência usando Doctrine
-
-Commits seguindo Conventional Commits:
-
-feat: nova funcionalidade
-
-fix: correção de bug
-
-chore: ajustes de configuração
-
-test: adição ou alteração de testes
-
-docs: documentação﻿# church-monitor-api
-
+- **feat**: nova funcionalidade
+- **fix**: correção de bug
+- **chore**: ajustes de configuração ou build
+- **docs**: documentação
+- **test**: adição ou alteração de testes
